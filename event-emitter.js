@@ -44,6 +44,9 @@
     }
   };
   EventEmitter.prototype.emit = function (event) {
+    return this.envoke.apply(this, arguments);
+  };
+  EventEmitter.prototype.envoke = function (event) {
     const listeners = this._listeners[event] || [];
     let args;
     let once;
@@ -51,6 +54,7 @@
       args = Array.prototype.slice.call(arguments, 1);
       once = [];
     }
+    const size = listeners.length;
     for (const listener of listeners) {
       listener.call(...args);
       if (listener.once) {
@@ -62,6 +66,7 @@
         this.removeListener(event, callback);
       }
     }
+    return size;
   };
   /**
   * @param {string} event
