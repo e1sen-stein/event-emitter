@@ -2,13 +2,16 @@
 // @name           EventEmitter
 // @description    Lightweight synchronous events libraray
 // @namespace      https://github.com/e1sen-stein
-// @version        0.1.0
+// @version        0.2.0
 // @author         EisenStein
 // ==/UserScript==
 
 (function (window, WINDOW) {
-  function EventEmitter() {
+  function EventEmitter(options) {
     this._listeners = {};
+    options = options || { version: 1, isAsync: false };
+    this.version = options.version || 1;
+    this.isAsync = !!options.isAsync;
   }
   /**
   * @param {string} event
@@ -16,16 +19,16 @@
   * @param {boolean} [once]
   * @param {any} [context]
   */
-  EventEmitter.prototype.addListener = function (event, callback, once = false, context = null) {
+  EventEmitter.prototype.addListener = function (event, callback, context = null, isOnce = false) {
     if (typeof callback !== 'function') {
       throw new Error('callback must be a function, but got ' + typeof callback);
     }
     this._listeners[event] = this._listeners[event] || [];
     const listeners = this._listeners[event];
-    if (listeners.find(function (el) { return el.has(callback); })) {
+    if (findBy.call(listeners, 'fn', callback)) {
       return;
     }
-    const listener = new Listener(callback, once, context || this);
+    const listener = { fn: callback, context, isOnce };
     listeners.push(listener);
   };
   EventEmitter.prototype.removeListener = function (event, callback) {
@@ -38,32 +41,38 @@
       listeners.length = 0;
       return;
     }
-    const index = listeners.findIndex(function (el) { return el.has(callback); });
+    const index = findIndexBy.call(listeners, 'fn', callback);
     if (index !== -1) {
       listeners.splice(index, 1);
     }
   };
-  EventEmitter.prototype.emit = function (event) {
-    return this.envoke.apply(this, arguments);
+  EventEmitter.prototype.emit = function (event, data) {
+    if (this.isAsync) {
+      const self = this;
+      const args = arguments;
+      setTimeout(function () {
+        this.envoke.apply(self, args);
+      }, 10);
+    } else {
+      return this.envoke.apply(this, arguments);
+    }
   };
-  EventEmitter.prototype.envoke = function (event) {
+  EventEmitter.prototype.envoke = function (event, data) {
     const listeners = this._listeners[event] || [];
     let args;
-    let once;
-    if (listeners && listeners.length) {
+    if (listeners && listeners.length && this.version === 1) {
       args = Array.prototype.slice.call(arguments, 1);
-      once = [];
     }
     const size = listeners.length;
-    for (const listener of listeners) {
-      listener.call(...args);
-      if (listener.once) {
-        once.push(listener.callback);
+    for (let i = 0; i < listeners.length; ++i) {
+      const listener = listeners[i];
+      if (this.version === 1) {
+        listener.fn.apply(listener.context, args);
+      } else {
+        listener.fn.call(listener.context, { type: event, data });
       }
-    }
-    if (once && once.length) {
-      for (const callback of once) {
-        this.removeListener(event, callback);
+      if (listener.isOnce) {
+        listeners.splice(i--, 1);
       }
     }
     return size;
@@ -74,45 +83,31 @@
   * @param {any} [context]
   */
   EventEmitter.prototype.on = function (event, callback, context) {
-    return this.addListener(event, callback, false, context);
+    return this.addListener(event, callback, context, false);
   };
   EventEmitter.prototype.once = function (event, callback, context) {
-    return this.addListener(event, callback, true, context);
+    return this.addListener(event, callback, context, true);
   };
   EventEmitter.prototype.off = function (event, callback) {
     return this.removeListener(event, callback);
   };
 
-  /**
-   * @param {function} callback
-   * @param {boolean} once
-   * @param {any} context
-   */
-  function Listener(callback, once = false, context) {
-    this.callback = callback;
-    this.once = once;
-    this.count = 0;
-    this.context = context || this;
+  function findBy (key, value) {
+    const index = findIndexBy.call(this, key, value);
+    return index === -1 ? null : this[index];
   }
-  /**
-   * @param {function} callback
-   */
-  Listener.prototype.has = function (callback) {
-    return this.callback === callback;
+  function findIndexBy (key, value) {
+    const array = this;
+    for (let index = 0; index < array.length; ++index) {
+      const item = array[index];
+      if (item[key] === value) {
+        return index;
+      }
+    }
+    return -1;
   }
-  Listener.prototype.call = function () {
-    if (typeof this.callback !== 'function') {
-      return;
-    }
-    this.count += 1;
-    if (!this.once || this.count <= 1) {
-      return this.callback.apply(this.context, arguments);
-    }
-  };
-  Listener.prototype.remove = function () {
-    this.callback = null;
-  };
 
-  WINDOW.Listener = Listener;
   WINDOW.EventEmitter = EventEmitter;
+  WINDOW.findBy = findBy;
+  WINDOW.findIndexBy = findIndexBy;
 })(typeof unsafeWindow !== 'undefined' ? unsafeWindow : window, window);
