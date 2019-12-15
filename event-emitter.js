@@ -44,7 +44,7 @@ EventEmitter.prototype.emit = function (event, data) {
     const self = this;
     const args = arguments;
     setTimeout(function () {
-      this.envoke.apply(self, args);
+      self.envoke.apply(self, args);
     }, 10);
   } else {
     return this.envoke.apply(this, arguments);
