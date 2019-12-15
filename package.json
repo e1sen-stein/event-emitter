@@ -1,6 +1,6 @@
 {
   "name": "@e1sen-stein/event-emitter",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "lightweight synchronous javascript event emitter",
   "main": "index.js",
   "scripts": {
