@@ -56,6 +56,19 @@ emitter.emit('my-event', 1, 2, 3, 4);
 emitter.emit('my-event', 2, 3, 4, 5);
 ```
 
+Count listeners
+```javascript
+const fn = () => {};
+emitter.on('event-1', fn);
+emitter.on('event-2', fn);
+emitter.on('event-3', () => {});
+emitter.countListeners('event-1'); // return 1 (number of "event-1" listeners)
+emitter.countListeners(fn); // return 2
+emitter.countListeners(); // return 3
+
+emitter.countAllListeners(); // return 3
+```
+
 Removing listeners
 
 ```javascript
