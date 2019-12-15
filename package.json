@@ -1,0 +1,24 @@
+{
+  "name": "event-emitter",
+  "version": "1.0.0",
+  "description": "lightweight synchronous javascript event emitter",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/e1sen-stein/event-emitter.git"
+  },
+  "keywords": [
+    "events",
+    "event",
+    "emitter"
+  ],
+  "author": "e1sen-stein",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/e1sen-stein/event-emitter/issues"
+  },
+  "homepage": "https://github.com/e1sen-stein/event-emitter#readme"
+}
