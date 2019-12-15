@@ -2,9 +2,8 @@ const { findBy, findIndexBy } = require('./utils');
 
 function EventEmitter(options) {
   this._listeners = {};
-  options = options || { version: 1, isAsync: false };
+  options = options || {}; // eslint-disable-line no-param-reassign
   this.version = options.version || 1;
-  this.isAsync = !!options.isAsync;
 }
 /**
 * @param {string} event
@@ -39,18 +38,54 @@ EventEmitter.prototype.removeListener = function (event, callback) {
     listeners.splice(index, 1);
   }
 };
-EventEmitter.prototype.emit = function (event, data) {
-  if (this.isAsync) {
-    const self = this;
-    const args = arguments;
-    setTimeout(function () {
-      self.envoke.apply(self, args);
-    }, 10);
-  } else {
-    return this.envoke.apply(this, arguments);
+
+EventEmitter.prototype.countAllListeners = function countAllListeners () {
+  let n = 0;
+  for (const name of Object.keys(this._listeners)) {
+    n += this._listeners[name].length;
   }
+  return n;
 };
-EventEmitter.prototype.envoke = function (event, data) {
+
+/** @param {string|symbol|function} [fn] */
+EventEmitter.prototype.countListeners = function countListeners (fn) {
+  let n = 0;
+  if (typeof fn === 'function') {
+    for (const name of Object.keys(this._listeners)) {
+      n += (findIndexBy.call(this._listeners[name], 'fn', fn) !== -1 ? 1 : 0);
+    }
+    return n;
+  }
+  if (typeof fn === 'string' || typeof fn === 'symbol') {
+    const listeners = this._listeners[fn];
+    return Array.isArray(listeners) ? listeners.length : 0;
+  }
+  return this.countAllListeners();
+};
+
+/** @param {string|symbol} event */
+EventEmitter.prototype.hasEvent = function hasEvent (event) {
+  if (typeof event === 'string' || typeof event === 'symbol') {
+    return Array.isArray(this._listeners[event]) ? !!this._listeners[event].length : false;
+  }
+  return false;
+};
+
+/**
+ * @param {string|symbol|function} event
+ * @param {function} [listener]
+ */
+EventEmitter.prototype.hasListener = function hasListener (event, listener) {
+  if (typeof event === 'function') {
+    return this.countListeners(event) > 0;
+  }
+  if (typeof listener === 'function') {
+    return this.hasEvent(event) && findIndexBy.call(this._listeners[event], 'fn', listener) !== -1;
+  }
+  return this.hasEvent(event);
+};
+
+EventEmitter.prototype.emit = function emit (event, data) {
   const listeners = this._listeners[event] || [];
   let args;
   if (listeners && listeners.length && this.version === 1) {
