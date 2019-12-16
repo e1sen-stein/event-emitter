@@ -27,7 +27,7 @@ yarn add @e1sen-stein/event-emitter
 Using cdn
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/e1sen-stein/event-emitter@1.1.1/dist/event-emitter.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@e1sen-stein/event-emitter@1.1.2/dist/event-emitter.min.js"></script>
 ```
 
 ### Build
@@ -38,11 +38,23 @@ npm run build
 
 ### Usage
 
+nodejs
+
 ```javascript
 const EventEmitter = require('event-emitter');
 
 const emitter = new EventEmitter();
+```
 
+browser
+
+```javascript
+const EventEmitter = window.EventEmitter;
+
+const emitter = new EventEmitter();
+```
+
+```javascript
 emitter.on('my-event', (...args) => {
   console.log(...args);
 });
