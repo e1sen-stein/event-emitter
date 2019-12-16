@@ -1,9 +1,10 @@
 {
   "name": "@e1sen-stein/event-emitter",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "lightweight synchronous javascript event emitter",
   "main": "index.js",
   "scripts": {
+    "build": "rm -fR ./dist && webpack --mode development && webpack --mode production",
     "test": "jest --verbose --coverage"
   },
   "repository": {
@@ -21,7 +22,14 @@
     "url": "https://github.com/e1sen-stein/event-emitter/issues"
   },
   "homepage": "https://github.com/e1sen-stein/event-emitter#readme",
-  "dependencies": {
-    "jest": "^24.9.0"
+  "dependencies": {},
+  "devDependencies": {
+    "@babel/core": "^7.7.5",
+    "@babel/preset-env": "^7.7.6",
+    "babel-loader": "^8.0.6",
+    "jest": "^24.9.0",
+    "uglifyjs-webpack-plugin": "^2.2.0",
+    "webpack": "^4.41.3",
+    "webpack-cli": "^3.3.10"
   }
 }

@@ -12,8 +12,28 @@ npm run test
 
 ### Installing
 
+Using npm
+
 ```bash
-npm install e1sen-stein/event-emitter
+npm install @e1sen-stein/event-emitter
+```
+
+Using yarn
+
+```bash
+yarn add @e1sen-stein/event-emitter
+```
+
+Using cdn
+
+```html
+<script src="https://cdn.jsdelivr.net/gh/e1sen-stein/event-emitter@1.1.1/dist/event-emitter.min.js"></script>
+```
+
+### Build
+
+```bash
+npm run build
 ```
 
 ### Usage
